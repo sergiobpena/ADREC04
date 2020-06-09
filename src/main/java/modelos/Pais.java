@@ -1,33 +1,48 @@
 package modelos;
 
+import javax.persistence.*;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Set;
 
+@Entity(name = "paises")
 public class Pais {
-
+    @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    private Long id;
+    @Transient
     HashMap<Date, Reporte> reportes=new HashMap<Date, Reporte>();
-    private String fk_continentExp;
+    @ManyToOne
+    @JoinColumn(name="idContinente")
+    private Continente continente;
+    @Column
     private String popData2018;
+    @Column(unique = true,nullable = false)
     private String countriesAndTerritories;
+    @Column
     private String countryterritoryCode;
-    private Reporte r;
+    @Transient
+    private Reporte reporteAuxiliar;
+    @OneToMany(mappedBy = "pais",cascade = CascadeType.ALL)
+    private Set<Reporte> listaReportes=new HashSet<Reporte>();
 
     public Pais(){}
 
     public Pais(Pais p ){
-        this.reportes.put(p.getR().getDateRep(),p.getR());
+        this.reportes.put(p.getReporteAuxiliar().getDateRep(),p.getReporteAuxiliar());
         this.popData2018=p.getPopData2018();
         this.countriesAndTerritories=p.getCountriesAndTerritories();
         this.countryterritoryCode=p.getCountryterritoryCode();
     }
-    public Reporte getR() {
-        return r;
+    public Reporte getReporteAuxiliar() {
+        return reporteAuxiliar;
     }
 
-    public void setR(Reporte r) {
-        this.r = r;
+    public void setReporteAxiliar(Reporte r) {
+        this.reporteAuxiliar = r;
     }
 
 
@@ -84,14 +99,21 @@ public class Pais {
     }
 
     public void engadeReporte(Pais p) {
-        this.reportes.put(p.getR().getDateRep(),p.getR());
+        this.reportes.put(p.getReporteAuxiliar().getDateRep(),p.getReporteAuxiliar());
+        this.listaReportes.add(p.getReporteAuxiliar());
     }
 
-    public String getFk_continentExp() {
-        return fk_continentExp;
+    public void engadeReporte(Reporte r) {
+        this.reporteAuxiliar=r;
+        this.reportes.put(r.getDateRep(),r);
+        this.listaReportes.add(r);
     }
 
-    public void setFk_continentExp(String fk_continentExp) {
-        this.fk_continentExp = fk_continentExp;
+    public Continente getContinente() {
+        return continente;
+    }
+
+    public void setContinente(Continente continente) {
+        this.continente = continente;
     }
 }

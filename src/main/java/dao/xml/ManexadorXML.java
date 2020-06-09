@@ -57,9 +57,10 @@ public class ManexadorXML extends DefaultHandler{
             this.pais.setCountryterritoryCode(this.cadeaTexto);
         }else if(localName=="record"){
 
-            this.pais.setR(this.reporte);
-            this.reporte.setFk_countriesAndTerritories(pais.getCountriesAndTerritories());
-            this.pais.setFk_continentExp(this.continente.getContinentExp());
+            this.pais.setContinente(this.continente);
+            this.reporte.setPais(this.pais);
+            this.pais.engadeReporte(this.reporte);
+
             if(this.continentes.containsKey(this.continente.getContinentExp())){
                 this.continentes.get(this.continente.getContinentExp()).engadeReporte(this.pais);
             }else{

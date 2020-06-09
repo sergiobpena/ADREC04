@@ -1,14 +1,28 @@
 package modelos;
 
+import javax.persistence.*;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-
+@Entity(name = "reportes")
 public class Reporte {
+    @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    private Long id;
+
+    @Column(nullable = false)
+    @Temporal(TemporalType.DATE)
     private Date dateRep;
+    @Column
     private int cases;
+    @Column
     private int deaths;
-    private String fk_countriesAndTerritories;
+    @ManyToOne
+    @JoinColumn(name="idPais")
+    private Pais pais;
+    @Transient
+    private Double crecemento;
+    public Reporte(){}
 
     public Date getDateRep() {
         return dateRep;
@@ -39,11 +53,11 @@ public class Reporte {
         this.deaths = deaths;
     }
 
-    public String getFk_countriesAndTerritories() {
-        return fk_countriesAndTerritories;
+    public Pais getPais() {
+        return pais;
     }
 
-    public void setFk_countriesAndTerritories(String fk_countriesAndTerritories) {
-        this.fk_countriesAndTerritories = fk_countriesAndTerritories;
+    public void setPais(Pais pais) {
+        this.pais = pais;
     }
 }

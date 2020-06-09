@@ -9,25 +9,17 @@ import java.util.Set;
 public class Continente {
     @Transient
     private HashMap<String,Pais> paises=new HashMap<String, Pais>();
-
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
-    @Column
+    @Column(unique = true,nullable = false)
     private String continentExp;
 
     @OneToMany(mappedBy = "continente",cascade = CascadeType.ALL)
     private Set <Pais> listaPaises=new HashSet<Pais>();
 
 
-
-    public void enchePaises(){
-        for (Pais p:paises.values()){
-            p.setFk_continentExp(this.getContinentExp());
-            this.listaPaises.add(p);
-        }
-    }
-
+    public Continente(){}
 
 
     public HashMap<String, Pais> getPaises() {
@@ -37,8 +29,8 @@ public class Continente {
         if (this.paises.containsKey(p.getCountriesAndTerritories())){
             this.paises.get(p.getCountriesAndTerritories()).engadeReporte(p);
         }else{
-            Pais x= new Pais(p);
-            this.paises.put(x.getCountriesAndTerritories(),x);
+            this.paises.put(p.getCountriesAndTerritories(),p);
+            this.listaPaises.add(p);
         }
     }
     public int casosDia(String data){
@@ -68,5 +60,18 @@ public class Continente {
         this.continentExp = continentExp;
     }
 
+    public Set<Pais> getListaPaises() {
+        return listaPaises;
+    }
 
+    public void setListaPaises(Set<Pais> listaPaises) {
+        this.listaPaises = listaPaises;
+    }
+    public void setListaPaises(Pais p ){
+        this.listaPaises.add(p);
+    }
+
+    public void engadePais(Pais p) {
+        this.listaPaises.add(p);
+    }
 }

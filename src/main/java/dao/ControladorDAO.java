@@ -97,4 +97,26 @@ public class ControladorDAO {
 
 
     }
+
+    public Session getSession() {
+        return session;
+    }
+
+    public static void main(String[] args) {
+        ControladorDAO c=ControladorDAO.getControladorDao("D:\\CURSO\\repositorios\\ADREC04\\config.json");
+        Continente cont=new Continente();
+        cont.setContinentExp("ProbaContinente");
+        Pais p = new Pais();
+        p.setCountriesAndTerritories("Proba pais");
+        Reporte r = new Reporte();
+        r.setDateRep("11/11/2009");
+        r.setPais(p);
+        p.engadeReporte(r);
+        p.setContinente(cont);
+        cont.engadePais(p);
+
+        Transaction tran= c.getSession().beginTransaction();
+        c.getSession().save(cont);
+        tran.commit();
+    }
 }
