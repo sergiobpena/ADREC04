@@ -1,22 +1,14 @@
 package dao;
 
-import dao.interfaces.ContinenteDAO;
-import dao.interfaces.PaisDAO;
-import dao.interfaces.ReporteDAO;
-
 import modelos.Continente;
 import modelos.Pais;
 import modelos.Reporte;
-import org.hibernate.FlushMode;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 
 
 import javax.persistence.Query;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.*;
 
@@ -27,9 +19,7 @@ import java.util.*;
 public class ControladorDAO {
 
     private static ControladorDAO controlador;
-    private PaisDAO pais;
-    private ContinenteDAO continente;
-    private ReporteDAO reporte;
+
     private Session session;
 
 
@@ -47,18 +37,7 @@ public class ControladorDAO {
         return controlador;
     }
 
-    public PaisDAO getPais() {
 
-        return pais;
-    }
-
-    public ContinenteDAO getContinente() {
-        return continente;
-    }
-
-    public ReporteDAO getReporte() {
-        return reporte;
-    }
 
 
     public void gardaContinentes(HashMap<String, Continente> continenteHashMap) {
@@ -143,5 +122,64 @@ public class ControladorDAO {
 
 
     public void obterMaximoCrecementoPorDia(Date d) {
+        ArrayList<Pais> paises=new ArrayList<Pais>();
+        Query qr= this.session.createQuery("select p from Pais p");
+        paises.addAll(qr.getResultList());
+        for (Pais p : paises){
+            p.encheMapas();
+            List<Reporte> listado_reportes = new ArrayList<Reporte>(p.getListaReportes());
+            Collections.sort(listado_reportes);
+            int casosAnterior=0;
+            double crecemento=0.0;
+            Iterator<Reporte> it=listado_reportes.iterator();
+            while (it.hasNext()){
+                Reporte r= it.next();
+                if (Double.valueOf(r.getCases()-Double.valueOf(casosAnterior))==0){
+                    crecemento = 0 ;
+                }else if (casosAnterior == 0){
+                    crecemento=0.0;
+                }else{
+                    crecemento=(Double.valueOf(r.getCases())-Double.valueOf(casosAnterior))/Double.valueOf(casosAnterior);
+                }
+                r.setCrecemento(crecemento);
+                casosAnterior=r.getCases();
+            }
+        }
+
+        ArrayList<CrecementoPais> listado= new ArrayList<CrecementoPais>();
+        for (Pais p : paises){
+            Double crecemento=0.0;
+            Reporte x= p.obterPorData(d);
+            if(x!=null){
+                crecemento=x.getCrecemento();
+            }
+            listado.add(new CrecementoPais(p.getCountriesAndTerritories(),crecemento));
+        }
+        Collections.sort(listado);
+
+        for(CrecementoPais c : listado){
+            System.out.println("- Pais : " + c.getPais() + "\t Crecemento : " + c.getCrecemento()*100 );
+        }
+    }
+
+    public class CrecementoPais implements Comparable<CrecementoPais>{
+        private String pais;
+        private Double crecemento;
+        public CrecementoPais(String pais, Double crecemento){
+            this.pais=pais;
+            this.crecemento=crecemento;
+        }
+
+        public Double getCrecemento() {
+            return crecemento;
+        }
+
+        public String getPais() {
+            return pais;
+        }
+
+        public int compareTo(CrecementoPais o) {
+            return this.crecemento.compareTo(o.getCrecemento());
+        }
     }
 }

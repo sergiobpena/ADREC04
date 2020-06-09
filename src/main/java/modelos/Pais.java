@@ -150,4 +150,11 @@ public class Pais implements Comparable<Pais>{
             this.reportes.put(r.getDateRep(),r);
         }
     }
+
+    public Set<Reporte> getListaReportes() {
+        return listaReportes;
+    }
+    public Reporte obterPorData(Date d){
+        return this.reportes.get(d);
+    }
 }

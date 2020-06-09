@@ -6,7 +6,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 @Entity
 @Table(name = "reportes")
-public class Reporte {
+public class Reporte implements Comparable<Reporte>{
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
@@ -78,5 +78,16 @@ public class Reporte {
     public void actualizaReporte(Reporte reporteAuxiliar) {
         this.cases=reporteAuxiliar.getCases();
         this.deaths=reporteAuxiliar.deaths;
+    }
+    public int compareTo(Reporte o) {
+        return this.getDateRep().compareTo(o.getDateRep());
+    }
+
+    public void setCrecemento(double crecemento) {
+        this.crecemento=crecemento;
+    }
+
+    public Double getCrecemento() {
+        return this.crecemento;
     }
 }
