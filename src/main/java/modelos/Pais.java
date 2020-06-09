@@ -1,5 +1,7 @@
 package modelos;
 
+import org.hibernate.annotations.Cascade;
+
 import javax.persistence.*;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -8,24 +10,28 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
 
-@Entity(name = "paises")
-public class Pais {
+@Entity
+@Table(name = "paises")
+public class Pais implements Comparable<Pais>{
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
     @Transient
     HashMap<Date, Reporte> reportes=new HashMap<Date, Reporte>();
+
+
     @ManyToOne
     @JoinColumn(name="idContinente")
     private Continente continente;
     @Column
     private String popData2018;
-    @Column(unique = true,nullable = false)
+    @Column(nullable = false)
     private String countriesAndTerritories;
     @Column
     private String countryterritoryCode;
     @Transient
     private Reporte reporteAuxiliar;
+
     @OneToMany(mappedBy = "pais",cascade = CascadeType.ALL)
     private Set<Reporte> listaReportes=new HashSet<Reporte>();
 
@@ -99,8 +105,13 @@ public class Pais {
     }
 
     public void engadeReporte(Pais p) {
-        this.reportes.put(p.getReporteAuxiliar().getDateRep(),p.getReporteAuxiliar());
-        this.listaReportes.add(p.getReporteAuxiliar());
+        if(this.reportes.containsKey(p.getReporteAuxiliar().getDateRep())){
+            this.reportes.get(p.getReporteAuxiliar().getDateRep()).actualizaReporte(p.getReporteAuxiliar());
+        }else{
+            this.reportes.put(p.getReporteAuxiliar().getDateRep(),p.getReporteAuxiliar());
+            this.listaReportes.add(p.getReporteAuxiliar());
+        }
+
     }
 
     public void engadeReporte(Reporte r) {
@@ -115,5 +126,28 @@ public class Pais {
 
     public void setContinente(Continente continente) {
         this.continente = continente;
+    }
+    public String toString(){
+        return this.countriesAndTerritories;
+    }
+    public boolean equals(Object o){
+        if(!(o instanceof Pais)) return false;
+        return this.getCountriesAndTerritories().equals(((Pais) o).getCountriesAndTerritories());
+    }
+
+    public int compareTo(Pais o) {
+        return this.countriesAndTerritories.compareTo(o.getCountriesAndTerritories());
+    }
+    public int totalCasos(){
+        int casos=0;
+        for(Reporte r  : listaReportes){
+            casos=casos+r.getCases();
+        }
+        return casos;
+    }
+    public void encheMapas(){
+        for(Reporte r : this.listaReportes){
+            this.reportes.put(r.getDateRep(),r);
+        }
     }
 }

@@ -7,16 +7,18 @@ import dao.interfaces.ReporteDAO;
 import modelos.Continente;
 import modelos.Pais;
 import modelos.Reporte;
+import org.hibernate.FlushMode;
+import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 
+
+import javax.persistence.Query;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
+import java.util.*;
 
 /**
  * Clase singleton para manexo das operacions en base de datos.
@@ -62,17 +64,38 @@ public class ControladorDAO {
     public void gardaContinentes(HashMap<String, Continente> continenteHashMap) {
         Transaction tran= null;
         tran=this.session.beginTransaction();
-        for (Continente e : continenteHashMap.values()){
-            session.save(e);
+        try {
+            for(Continente c : continenteHashMap.values()){
+                this.session.save(c);
+            }
+
+            tran.commit();
+        }catch (HibernateException e){
+            System.out.println("Fallou algo cargando os datos");
+
         }
-        tran.commit();
     }
 
     public void obtenMaiorque(int casos){
 
-    }
-    public void oberMaximosDia(){
+        Query qr = session.createQuery("SELECT p FROM Pais p");
+        List<Pais> paises=qr.getResultList();
 
+        for(Pais p : paises){
+            if (p.totalCasos()>casos){
+                System.out.println(p.getCountriesAndTerritories() + "\t Numero de casos: " + p.totalCasos());
+            }
+        }
+
+    }
+
+    public void oberMaximosDia(){
+        Query hql1 = session.createQuery("SELECT max(r.deaths),r.dateRep,r.pais FROM Reporte r group by r.pais order by r.pais");
+        List<Object[]> listaReportes=hql1.getResultList();
+
+        for(Object[] o : listaReportes){
+            System.out.println("-Data: " + o[1] + "\t Pais : " + o[2] + "\t Numero de falecidos : " + o[0]);
+        }
 
     }
 
@@ -84,16 +107,32 @@ public class ControladorDAO {
 
 
     public void obterPaisMaisCasosPorDia() {
+        Query qr=session.createQuery("SELECT r.pais,max(r.cases),r.dateRep from Reporte r where r.cases>0 group by r.dateRep order by r.dateRep");
+        List<Object[]> listado=qr.getResultList();
+        for(Object[] o : listado){
+            System.out.println("Data : " + o[2] + "\t Casos : " + o[1] + "\t Pais : " + o[0] );
+        }
 
     }
 
+    public HashMap<String , Continente> obtenContinentes(){
+        HashMap<String,Continente> continentesActuais=new HashMap<String, Continente>();
+        Query qr=session.createQuery("select c from Continente c");
+        List<Continente> continentes=qr.getResultList();
+        for(Continente c : continentes){
+            continentesActuais.put(c.getContinentExp(),c);
+        }
+        return continentesActuais;
+    }
     public void actualizaSerie(Collection<Continente> values) {
         Transaction tran= null;
-        tran=this.session.beginTransaction();
+
         for (Continente e : values){
+            tran=this.session.beginTransaction();
             session.saveOrUpdate(e);
+            tran.commit();
         }
-        tran.commit();
+
 
 
     }
@@ -102,21 +141,7 @@ public class ControladorDAO {
         return session;
     }
 
-    public static void main(String[] args) {
-        ControladorDAO c=ControladorDAO.getControladorDao("D:\\CURSO\\repositorios\\ADREC04\\config.json");
-        Continente cont=new Continente();
-        cont.setContinentExp("ProbaContinente");
-        Pais p = new Pais();
-        p.setCountriesAndTerritories("Proba pais");
-        Reporte r = new Reporte();
-        r.setDateRep("11/11/2009");
-        r.setPais(p);
-        p.engadeReporte(r);
-        p.setContinente(cont);
-        cont.engadePais(p);
 
-        Transaction tran= c.getSession().beginTransaction();
-        c.getSession().save(cont);
-        tran.commit();
+    public void obterMaximoCrecementoPorDia(Date d) {
     }
 }

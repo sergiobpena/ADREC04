@@ -11,6 +11,7 @@ import java.util.HashMap;
 
 public class ConversorXML {
     private String rutaXML;
+    private HashMap<String,Continente> continentesBD= new HashMap<String, Continente>();
     public ConversorXML(String rutaXML){
         this.rutaXML=rutaXML;
     }
@@ -21,6 +22,9 @@ public class ConversorXML {
         try {
             procedadorXML = XMLReaderFactory.createXMLReader();
             ManexadorXML parseadorXML = new ManexadorXML();
+            if(!this.continentesBD.values().isEmpty()){
+              parseadorXML.setContinentes(this.continentesBD);
+            }
             procedadorXML.setContentHandler(parseadorXML);
             InputSource arquivo = new InputSource(rutaXML);
             procedadorXML.parse(arquivo);
@@ -34,4 +38,7 @@ public class ConversorXML {
         return continentes;
     }
 
+    public void setContinentesBD(HashMap<String, Continente> continentesBD) {
+        this.continentesBD = continentesBD;
+    }
 }

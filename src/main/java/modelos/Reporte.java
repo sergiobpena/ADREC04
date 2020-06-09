@@ -4,7 +4,8 @@ import javax.persistence.*;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-@Entity(name = "reportes")
+@Entity
+@Table(name = "reportes")
 public class Reporte {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -17,9 +18,11 @@ public class Reporte {
     private int cases;
     @Column
     private int deaths;
+
     @ManyToOne
     @JoinColumn(name="idPais")
     private Pais pais;
+
     @Transient
     private Double crecemento;
     public Reporte(){}
@@ -59,5 +62,21 @@ public class Reporte {
 
     public void setPais(Pais pais) {
         this.pais = pais;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if(!(obj instanceof Reporte)) return false;
+        final Reporte r =(Reporte)obj;
+        if(this.getDateRep().equals(r.getDateRep())&& this.getPais().equals(r.getPais())){
+            return true;
+        }else{
+            return false;
+        }
+    }
+
+    public void actualizaReporte(Reporte reporteAuxiliar) {
+        this.cases=reporteAuxiliar.getCases();
+        this.deaths=reporteAuxiliar.deaths;
     }
 }

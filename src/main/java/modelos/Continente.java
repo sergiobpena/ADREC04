@@ -5,10 +5,12 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
 
-@Entity(name = "continentes")
+@Entity
+@Table(name = "continentes")
 public class Continente {
     @Transient
     private HashMap<String,Pais> paises=new HashMap<String, Pais>();
+
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
@@ -27,8 +29,10 @@ public class Continente {
     }
     public void engadeReporte(Pais p){
         if (this.paises.containsKey(p.getCountriesAndTerritories())){
+            p.getReporteAuxiliar().setPais(this.paises.get(p.getCountriesAndTerritories()));
             this.paises.get(p.getCountriesAndTerritories()).engadeReporte(p);
         }else{
+
             this.paises.put(p.getCountriesAndTerritories(),p);
             this.listaPaises.add(p);
         }
@@ -73,5 +77,17 @@ public class Continente {
 
     public void engadePais(Pais p) {
         this.listaPaises.add(p);
+    }
+    public boolean equals(Object o){
+        if((o instanceof Continente)) return false;
+        Continente c = (Continente) o;
+        return this.getContinentExp().equals(((Continente) o).getContinentExp());
+    }
+    public void encheMapas(){
+
+        for(Pais p : this.listaPaises){
+            p.encheMapas();
+            this.paises.put(p.getCountriesAndTerritories(),p);
+        }
     }
 }

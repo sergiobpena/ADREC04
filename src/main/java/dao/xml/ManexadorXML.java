@@ -23,6 +23,9 @@ public class ManexadorXML extends DefaultHandler{
     public ManexadorXML(){
         super();
     }
+    public void setContinentes(HashMap<String,Continente> continentes){
+        this.continentes=continentes;
+    }
     @Override
     public void startDocument()throws SAXException {
 
@@ -56,14 +59,13 @@ public class ManexadorXML extends DefaultHandler{
         }else if(localName=="countryterritoryCode"){
             this.pais.setCountryterritoryCode(this.cadeaTexto);
         }else if(localName=="record"){
-
-            this.pais.setContinente(this.continente);
-            this.reporte.setPais(this.pais);
-            this.pais.engadeReporte(this.reporte);
-
+            this.reporte.setPais(pais);
+            this.pais.setReporteAxiliar(this.reporte);
             if(this.continentes.containsKey(this.continente.getContinentExp())){
+                this.pais.setContinente(this.continentes.get(this.continente.getContinentExp()));
                 this.continentes.get(this.continente.getContinentExp()).engadeReporte(this.pais);
             }else{
+                this.pais.setContinente(this.continente);
                 this.continente.engadeReporte(this.pais);
                 this.continentes.put(this.continente.getContinentExp(),this.continente);
             }
