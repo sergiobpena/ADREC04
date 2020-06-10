@@ -1,6 +1,6 @@
 {
   "dbConnection":{
-    "address":"127.0.0.1",
+    "address":"192.168.56.101",
     "port":"3306",
     "name":"hibernate",
     "user":"userhibernate",
